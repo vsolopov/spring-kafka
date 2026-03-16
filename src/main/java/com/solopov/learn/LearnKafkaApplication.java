@@ -2,12 +2,15 @@ package com.solopov.learn;
 
 import com.github.javafaker.Faker;
 import lombok.RequiredArgsConstructor;
+import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.event.ApplicationStartedEvent;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.event.EventListener;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.config.TopicBuilder;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
@@ -19,10 +22,22 @@ import java.util.stream.Stream;
 public class LearnKafkaApplication {
 
     private static final String TOPIC_HOBBIT = "hobbit";
+    private static final String TOPIC_HOBBIT_2 = "hobbit_2";
 
 
     public static void main(String[] args) {
         SpringApplication.run(LearnKafkaApplication.class, args);
+    }
+
+    /**
+     * The definition of this bean has invoked programmatic creation of this topic in Kafka
+     */
+    @Bean
+    NewTopic hobbit2() {
+        return TopicBuilder.name(TOPIC_HOBBIT_2)
+                .partitions(12)
+                .replicas(3)
+                .build();
     }
 
 
