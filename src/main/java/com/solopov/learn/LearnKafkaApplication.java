@@ -2,6 +2,7 @@ package com.solopov.learn;
 
 import com.github.javafaker.Faker;
 import lombok.RequiredArgsConstructor;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.event.ApplicationStartedEvent;
@@ -33,9 +34,9 @@ public class LearnKafkaApplication {
 
         private final Faker faker = Faker.instance();
 
+
         @EventListener(ApplicationStartedEvent.class)
         public void generate() {
-
             Flux<Long> interval = Flux.interval(Duration.ofMillis(1_000));
             Flux<String> quotes = Flux.fromStream(Stream.generate(() -> faker.hobbit().quote()));
             Flux.zip(interval, quotes).map(
@@ -44,13 +45,14 @@ public class LearnKafkaApplication {
         }
     }
 
+
     @Component
     @RequiredArgsConstructor
     class Consumer {
 
         @KafkaListener(topics = {TOPIC_HOBBIT}, groupId = "spring-boot-kafka")
-        public void consume(String quote) {
-            System.out.printf("received = %s%n", quote);
+        public void consume(ConsumerRecord<Integer, String> record) {
+            System.out.printf("received key=%d value= %s%n", record.key(), record.value());
         }
     }
 }
